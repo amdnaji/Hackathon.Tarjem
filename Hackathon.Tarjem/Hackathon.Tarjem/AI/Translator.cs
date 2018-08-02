@@ -24,7 +24,7 @@ namespace Hackathon.Tarjem.AI
             string host = "https://api.cognitive.microsofttranslator.com";
             string path = "/translate?api-version=3.0";
             // Translate to German and Italian.
-            string params_ = "&to=ar";
+            string params_ = $"&to={to}";
 
             string uri = host + path + params_;
 
