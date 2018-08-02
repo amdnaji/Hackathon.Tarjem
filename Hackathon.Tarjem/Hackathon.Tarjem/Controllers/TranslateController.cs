@@ -16,6 +16,7 @@ namespace Hackathon.Tarjem.Controllers
         {
             _trnaslator = new Translator();
         }
+        #region Ajax
         [HttpPost]
         public async Task<IActionResult> Start([FromBody]UserText userText)
         {
@@ -40,10 +41,21 @@ namespace Hackathon.Tarjem.Controllers
                 text = toText
             });
         }
-
-        private async Task<object> CheckLangSourceAsync(string lang,string userText)
+        [HttpPost]
+        public async Task<IActionResult> SmartMessage([FromBody]UserText userText)
         {
-            if(lang=="ar") //We need to translate it for english
+            var jsonResult = await _trnaslator.TranslatAllAsync(userText.text);
+            var langList= JsonConvert.DeserializeObject<List<JsonBody>>(jsonResult);
+            List<Translations> translations = new List<Translations>();
+            //Return list of translations
+            return Json(langList.First().Translations);
+        }
+        #endregion
+
+        #region Helper
+        private async Task<object> CheckLangSourceAsync(string lang, string userText)
+        {
+            if (lang == "ar") //We need to translate it for english
             {
                 var jsonResult = await _trnaslator.TranslateAsync(userText, "en");
                 var (lng, toText) = ParsedText(jsonResult);
@@ -70,6 +82,8 @@ namespace Hackathon.Tarjem.Controllers
             else
                 return ("Nan", "Unable to detect the language .. Please try again");
         }
+        #endregion
+
         public IActionResult Health()
         {
             return View();
