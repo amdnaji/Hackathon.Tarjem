@@ -5,41 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Hackathon.Tarjem</title>
 
-    <environment include="Development">
-
-        <link rel="stylesheet" href="~/style.css">
-    </environment>
-    <environment exclude="Development">
-        <link rel="stylesheet" href="../../../wwwroot/style.css">
-
-    </environment>
+    <link rel="stylesheet" href="~/style.css">
+    <link rel="stylesheet" href="../../../wwwroot/style.css">
 </head>
 <body>
     <header class="mdc-top-app-bar">
         <div class="mdc-top-app-bar__row">
-          <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
-            <a href="#" class="material-icons mdc-top-app-bar__navigation-icon">menu</a>
-            <span class="mdc-top-app-bar__title">Trajim</span>
-          </section>
-          <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
-            <a href="#" class="material-icons mdc-top-app-bar__action-item" aria-label="Bookmark this page" alt="Bookmark this page">bookmark</a>
-          </section>
+            <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+                <a href="#" class="material-icons mdc-top-app-bar__navigation-icon">menu</a>
+                <span class="mdc-top-app-bar__title">Trajim</span>
+            </section>
+            <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
+                <a href="#" class="material-icons mdc-top-app-bar__action-item" aria-label="Bookmark this page" alt="Bookmark this page">bookmark</a>
+            </section>
         </div>
-      </header>
+    </header>
     <div class="container body-content">
         @RenderBody()
 
     </div>
-
-    <environment include="Development">
-
-        <script src="~/App.bundle.js"></script>
-    </environment>
-    <environment exclude="Development">
-
-        <script src="../../../wwwroot/App.bundle.js"></script>
-
-    </environment>
+    <script src="~/App.bundle.js"></script>
 
     @RenderSection("Scripts", required: false)
 </body>

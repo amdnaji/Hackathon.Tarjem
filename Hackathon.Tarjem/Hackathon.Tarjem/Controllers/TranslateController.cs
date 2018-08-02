@@ -17,6 +17,11 @@ namespace Hackathon.Tarjem.Controllers
             Translator translator = new Translator();
             var jsonResult = await translator.TranslateAsync(userText.text);
             var (lang, toText) = ParsedText(jsonResult);
+            //Check parsed keywords if contain doctor keyword or not
+            if(userText.text.Contains("doctors")|| userText.text.Contains("doctor"))
+            {
+                return RedirectToAction("Health", "Translate");
+            }
             //Start the trnaslation
             var body = new
             {
@@ -37,6 +42,10 @@ namespace Hackathon.Tarjem.Controllers
             }
             else
                 return ("Nan", "Unable to detect the language .. Please try again");
+        }
+        public IActionResult Health()
+        {
+            return View();
         }
     }
 }
