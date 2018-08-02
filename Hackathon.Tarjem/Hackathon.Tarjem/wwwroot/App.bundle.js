@@ -7064,7 +7064,7 @@ __webpack_require__(/*! ../sass/app.scss */ "./src/sass/app.scss");
 
 
 
-const voice = document.querySelector('[data-translater]')
+const voice = document.querySelectorAll('[data-translater]')
 new _translater__WEBPACK_IMPORTED_MODULE_2__["default"](voice)
 
 // Instantiation
@@ -7073,7 +7073,6 @@ const topAppBar = new _material_top_app_bar_index__WEBPACK_IMPORTED_MODULE_1__["
 
 // const ripple = new MDCRipple(document.querySelector('.foo-button'));
 
-console.log('hajj');
 
 
 
@@ -7096,21 +7095,40 @@ __webpack_require__.r(__webpack_exports__);
 class translater {
   constructor(el) {
     this.el = el;
+
     this.textWarpper = document.querySelector('.text-wrapper');
     this.textSpan = document.querySelector('#text');
+    this.translteWrapper = document.querySelector('.translate-wrapper ');
     this.init();
   }
 
   init() {
+    console.log(this.el)
     this.event();
+
   }
   event() {
-    console.log(typeof (this.el))
     const _this = this
-    this.el.addEventListener('click', function (e) {
-      const recognizer = _this.RecognizerSetup(microsoft_speech_browser_sdk__WEBPACK_IMPORTED_MODULE_0__, 'interactive', 'en-US', 'Simple', 'eb5b5418d506499496cc6524ef2a1a4c');
-      _this.RecognizerStart(microsoft_speech_browser_sdk__WEBPACK_IMPORTED_MODULE_0__, recognizer);
+    console.log(this.el)
+    this.el.forEach((k,v) => {
+      console.log(k.dataset.translater)
+      if(k.dataset.translater == 'reply'){
+        k.addEventListener('click', function (e) {
+
+              const recognizer = _this.RecognizerSetup(microsoft_speech_browser_sdk__WEBPACK_IMPORTED_MODULE_0__, 'interactive', 'ar-EG', 'Simple', 'eb5b5418d506499496cc6524ef2a1a4c');
+            _this.RecognizerStart(microsoft_speech_browser_sdk__WEBPACK_IMPORTED_MODULE_0__, recognizer);
+
+          })
+      }else{
+        k.addEventListener('click', function (e) {
+
+          const recognizer = _this.RecognizerSetup(microsoft_speech_browser_sdk__WEBPACK_IMPORTED_MODULE_0__, 'interactive', 'en-US', 'Simple', 'eb5b5418d506499496cc6524ef2a1a4c');
+        _this.RecognizerStart(microsoft_speech_browser_sdk__WEBPACK_IMPORTED_MODULE_0__, recognizer);
+
+      })
+      }
     })
+
   }
 
   RecognizerSetup(SDK, recognitionMode, language, format, subscriptionKey) {
@@ -7152,7 +7170,8 @@ class translater {
           console.log(JSON.stringify(event.Result)); // check console for other information in result
           break;
         case "SpeechHypothesisEvent":
-        _this.showText(event.Result.Text, false)
+          _this.showText(event.Result.Text, false);
+
           console.log(JSON.stringify(event.Result)); // check console for other information in result
           break;
         case "SpeechFragmentEvent":
@@ -7160,25 +7179,26 @@ class translater {
           console.log(JSON.stringify(event.Result)); // check console for other information in result
           break;
         case "SpeechEndDetectedEvent":
-
-          console.log(JSON.stringify(event.Result)); // check console for other information in result
+          console.log('SpeechEndDetectedEvent', JSON.stringify(event.Result)); // check console for other information in result
           break;
         case "SpeechSimplePhraseEvent":
-          console.log(JSON.stringify(event.Result))
+          console.log('SpeechSimplePhraseEvent', JSON.stringify(event.Result));
+
           break;
         case "SpeechDetailedPhraseEvent":
-          console.log(JSON.stringify(event.Result))
+          console.log('SpeechDetailedPhraseEvent', JSON.stringify(event.Result));
+          _this.sendText(JSON.stringify(event.Result.DisplayText))
 
 
           break;
         case "RecognitionEndedEvent":
 
-          console.log(JSON.stringify(event)); // Debug information
+          this.RecognizerStop(SDK, recognizer) // Debug information
           break;
       }
     })
       .On(() => {
-        // The request succeeded. Nothing to do here.
+
       },
         (error) => {
           console.error(error);
@@ -7186,21 +7206,61 @@ class translater {
   }
   RecognizerStop(SDK, recognizer) {
     // recognizer.AudioSource.Detach(audioNodeId) can be also used here. (audioNodeId is part of ListeningStartedEvent)
+    console.log('RecognizerStop end')
     recognizer.AudioSource.TurnOff();
   }
 
-  showText(text, append){
+  showText(text, append) {
     this.textWarpper.style.display = "block"
-    if(append){
+    if (append) {
       this.textSpan.innerHTML += text.Text + " ";
-    }else{
-      this.textSpan.innerHTML = text ;
+    } else {
+      this.textSpan.innerHTML = text;
     }
 
 
   }
-}
+  sendText(text) {
+    this.textWarpper.style.display = "none";
+    console.log('text is ', text)
+    fetch('/Translate/start', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
 
+
+      body: JSON.stringify({ 'text': text })
+    }).then((response) => {
+      return response.json();
+    }).then((data) => {
+      console.log(data)
+      this.showTranslateText(data.from, data.to, data.text, text)
+    })
+  }
+  showTranslateText(from, to, translte, text) {
+    var textBlock  = this.appendSentence(from, to, translte, text);
+    console.log(this.translteWrapper)
+    this.translteWrapper.appendChild(textBlock)
+  }
+  appendSentence(from, to, translte, text) {
+
+    var wrapper = `<div class="mdc-card"><h3>${text}</h3><span>${from}</span><span>${to}</span><div class="mdc-card__actions"><didv class="mdc-card__action-icons"><button class="material-icons mdc-icon-button mdc-card__action mdc-card__action--icon" title="More options">headset</button><button class="material-icons mdc-icon-button mdc-card__action mdc-card__action--icon" title="Share">share</button></div></div>`;
+    var mdCard = document.createElement('div');
+    var action = document.createElement('div');
+
+    mdCard.className = "mdc-card";
+    action.className = "dc-card__action-icons";
+
+    var h3 = document.createElement('h3')
+    h3.innerHTML = translte
+    mdCard.appendChild(h3);
+    return mdCard;
+  }
+
+
+}
 
 
 
