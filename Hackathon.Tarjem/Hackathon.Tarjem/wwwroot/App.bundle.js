@@ -7071,7 +7071,13 @@ new _translater__WEBPACK_IMPORTED_MODULE_2__["default"](voice)
 const topAppBarElement = document.querySelector('.mdc-top-app-bar');
 const topAppBar = new _material_top_app_bar_index__WEBPACK_IMPORTED_MODULE_1__["MDCTopAppBar"](topAppBarElement);
 
-// const ripple = new MDCRipple(document.querySelector('.foo-button'));
+const rippleInput = document.querySelectorAll('.ripple');
+
+if(rippleInput) {
+  rippleInput.forEach((v,k) => {
+    new _material_ripple__WEBPACK_IMPORTED_MODULE_0__["MDCRipple"](k)
+  })
+}
 
 
 
@@ -7099,6 +7105,7 @@ class translater {
     this.textWarpper = document.querySelector('.text-wrapper');
     this.textSpan = document.querySelector('#text');
     this.translteWrapper = document.querySelector('.translate-wrapper ');
+    this.messagesWrapper = document.querySelector('.messages-wrapper');
     this.init();
   }
 
@@ -7109,14 +7116,13 @@ class translater {
   }
   event() {
     const _this = this
-    console.log(this.el)
     this.el.forEach((k,v) => {
-      console.log(k.dataset.translater)
-      if(k.dataset.translater == 'reply'){
+
+      if(k.dataset.translater == 'reply' || k.dataset.translater == 'smartMessage'){
         k.addEventListener('click', function (e) {
 
               const recognizer = _this.RecognizerSetup(microsoft_speech_browser_sdk__WEBPACK_IMPORTED_MODULE_0__, 'interactive', 'ar-EG', 'Simple', 'eb5b5418d506499496cc6524ef2a1a4c');
-            _this.RecognizerStart(microsoft_speech_browser_sdk__WEBPACK_IMPORTED_MODULE_0__, recognizer);
+            _this.RecognizerStart(microsoft_speech_browser_sdk__WEBPACK_IMPORTED_MODULE_0__, recognizer, k.dataset.translater);
 
           })
       }else{
@@ -7147,7 +7153,7 @@ class translater {
     return SDK.CreateRecognizer(recognizerConfig, authentication);
   }
 
-  RecognizerStart(SDK, recognizer) {
+  RecognizerStart(SDK, recognizer, type) {
     const _this = this;
     recognizer.Recognize((event) => {
       /*
@@ -7187,7 +7193,7 @@ class translater {
           break;
         case "SpeechDetailedPhraseEvent":
           console.log('SpeechDetailedPhraseEvent', JSON.stringify(event.Result));
-          _this.sendText(JSON.stringify(event.Result.DisplayText))
+          _this.sendText(JSON.stringify(event.Result.DisplayText), type)
 
 
           break;
@@ -7220,28 +7226,56 @@ class translater {
 
 
   }
-  sendText(text) {
+  sendText(text, type) {
     this.textWarpper.style.display = "none";
-    console.log('text is ', text)
-    fetch('/Translate/start', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
+    if(type == 'smartMessage'){
+      fetch('/Translate/smartMessage', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
 
 
-      body: JSON.stringify({ 'text': text })
-    }).then((response) => {
-      return response.json();
-    }).then((data) => {
-      console.log(data)
-      this.showTranslateText(data.from, data.to, data.text, text)
-    })
+        body: JSON.stringify({ 'text': text })
+      }).then((response) => {
+        return response.json();
+      }).then((data) => {
+        this.showTranslateMessage(data,text)
+      })
+
+    }else{
+      fetch('/Translate/start', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+
+
+        body: JSON.stringify({ 'text': text })
+      }).then((response) => {
+        return response.json();
+      }).then((data) => {
+
+          this.showTranslateText(data.from, data.to, data.text, text)
+      })
+    }
+
+  }
+  showTranslateMessage(data, text){
+
+    var textBlock  = this.appendSentence('', '', text, '');
+    this.translteWrapper.appendChild(textBlock);
+    console.log(data)
+    for(let lang in data){
+      this.showOtherLangs(data[lang])
+    }
+
   }
   showTranslateText(from, to, translte, text) {
     var textBlock  = this.appendSentence(from, to, translte, text);
-    console.log(this.translteWrapper)
+
     this.translteWrapper.appendChild(textBlock)
   }
   appendSentence(from, to, translte, text) {
@@ -7254,8 +7288,37 @@ class translater {
     action.className = "dc-card__action-icons";
 
     var h3 = document.createElement('h3')
+    var span = document.createElement('span')
     h3.innerHTML = translte
+    span.innerText = text;
+    mdCard.appendChild(span)
     mdCard.appendChild(h3);
+    return mdCard;
+  }
+  showOtherLangs(lang){
+  const message = this.appendMessages(lang.text, lang.to);
+  this.messagesWrapper.appendChild(message)
+  }
+  appendMessages(text, lang) {
+    var mdCard = document.createElement('div');
+    var action = document.createElement('div');
+    var divinput = document.createElement('div');
+    var input = document.createElement('imput');
+    var button = document.createElement('button');
+
+    mdCard.className = "mdc-card";
+    action.className = "dc-card__action-icons";
+    button.className = "mdc-button";
+    input.className = "mdc-text-field__input"
+    var h3 = document.createElement('h3')
+    var span = document.createElement('span')
+    input.innerHTML = text;
+    span.innerText = lang;
+    input.type = 'text'
+    button.innerText = 'إرسال'
+    mdCard.appendChild(span);
+    mdCard.appendChild(input);
+    mdCard . appendChild(button)
     return mdCard;
   }
 
