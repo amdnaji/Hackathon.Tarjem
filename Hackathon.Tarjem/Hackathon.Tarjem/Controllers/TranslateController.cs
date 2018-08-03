@@ -44,10 +44,15 @@ namespace Hackathon.Tarjem.Controllers
         [HttpPost]
         public async Task<IActionResult> SmartMessage([FromBody]UserText userText)
         {
+            Languages languages = new Languages();
             var jsonResult = await _trnaslator.TranslatAllAsync(userText.text);
             var langList= JsonConvert.DeserializeObject<List<JsonBody>>(jsonResult);
             List<Translations> translations = new List<Translations>();
-            //Return list of translations
+            //Loop through translations and get lang name
+            langList.First().Translations.ForEach(t =>
+            {
+                t.To = languages.GetLanguageName(t.To);
+            });
             return Json(langList.First().Translations);
         }
         #endregion
@@ -61,7 +66,7 @@ namespace Hackathon.Tarjem.Controllers
                 var (lng, toText) = ParsedText(jsonResult);
                 var body = new
                 {
-                    to = lng,
+                    to = "en",
                     from = lang,
                     text = toText
                 };

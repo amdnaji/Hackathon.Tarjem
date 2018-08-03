@@ -58,7 +58,7 @@ namespace Hackathon.Tarjem.AI
 
         public async Task<string> TranslatAllAsync(string message)
         {
-            string langList = $"&to=bg&to=da";
+            string langList = $"&to=bg&to=da&to=pt&to=id&to=ja&to=tr&to=ur&to=hi";
             var result = await CallBingApi(message, langList);
             return result;
 
