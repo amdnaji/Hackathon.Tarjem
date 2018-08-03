@@ -22,6 +22,8 @@ namespace Hackathon.Tarjem
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            //Add signalr middleware
+            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -38,7 +40,11 @@ namespace Hackathon.Tarjem
             }
 
             app.UseStaticFiles();
-
+            //Enable Signalr
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<ChatHub>("/chatHub");
+            });
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
