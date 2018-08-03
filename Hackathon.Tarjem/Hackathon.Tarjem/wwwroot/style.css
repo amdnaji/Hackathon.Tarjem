@@ -4081,17 +4081,19 @@ template {
         -ms-flex-direction: column;
             flex-direction: column;
     padding: 5px;
-    margin-right: 1em;
-    border: 1px black solid; }
+    width: 250px;
+    margin: 0 2em; }
   .chat-container .message-wrapper {
     min-height: 250px;
     max-height: 250px; }
     .chat-container .message-wrapper .receive-message {
-      float: right; }
+      text-align: right; }
   .chat-container .input-wrapper {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex; }
+    .chat-container .input-wrapper input {
+      width: 100%; }
     .chat-container .input-wrapper a {
       background-color: #29b89e;
       color: white;

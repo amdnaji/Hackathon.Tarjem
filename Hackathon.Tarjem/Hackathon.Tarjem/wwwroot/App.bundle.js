@@ -7057,6 +7057,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _material_ripple__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @material/ripple */ "./node_modules/@material/ripple/index.js");
 /* harmony import */ var _material_top_app_bar_index__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @material/top-app-bar/index */ "./node_modules/@material/top-app-bar/index.js");
 /* harmony import */ var _translater__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./translater */ "./src/js/translater.js");
+/* harmony import */ var _chat__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./chat */ "./src/js/chat.js");
 __webpack_require__(/*! ../sass/app.scss */ "./src/sass/app.scss");
 
 //import {translater} from './speech-sdk';
@@ -7064,8 +7065,15 @@ __webpack_require__(/*! ../sass/app.scss */ "./src/sass/app.scss");
 
 
 
-const voice = document.querySelectorAll('[data-translater]')
-new _translater__WEBPACK_IMPORTED_MODULE_2__["default"](voice)
+
+
+const voice = document.querySelectorAll('[data-translater]');
+new _translater__WEBPACK_IMPORTED_MODULE_2__["default"](voice);
+const send = document.querySelectorAll('[data-chat]');
+new _chat__WEBPACK_IMPORTED_MODULE_3__["default"](send);
+
+
+
 
 // Instantiation
 const topAppBarElement = document.querySelector('.mdc-top-app-bar');
@@ -7081,6 +7089,107 @@ if(rippleInput) {
 
 
 
+
+/***/ }),
+
+/***/ "./src/js/chat.js":
+/*!************************!*\
+  !*** ./src/js/chat.js ***!
+  \************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+class chat {
+  constructor(el){
+    this.el = el;
+    this.senderMessage = document.querySelector(' .s-w');
+    this.receiverMessage = document.querySelector(' .r-w');
+    this.init()
+  }
+  init(){
+    this.event();
+  }
+  event(){
+    var _this = this;
+    this.el.forEach( (k,v)=> {
+
+      var type = k.dataset.chat;
+
+      k.addEventListener('click', (e)=> {
+        e.preventDefault();
+        _this.getTypedMessage(type)
+      })
+    })
+  }
+  getTypedMessage(type){
+    if(type == 'sender'){
+      var message = document.getElementById('sender-message');
+
+      this.sendMessage(message.value, type);
+    }else{
+      var rmessage = document.getElementById('receiver-message');
+
+      this.sendMessage(rmessage.value, type);
+
+    }
+  }
+
+  sendMessage(message, type) {
+    var _this = this
+    if(type == 'sender'){
+      fetch('/Translate/Ask', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+
+
+        body: JSON.stringify({ 'text': message })
+      }).then((response) => {
+        return response.json();
+      }).then((data) => {
+        _this.showMessage(data.text, message, type)
+      })
+    }else{
+      fetch('/Translate/Answer', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+
+
+        body: JSON.stringify({ 'text': message })
+      }).then((response) => {
+        return response.json();
+      }).then((data) => {
+        _this.showMessage(data.text, message, type)
+      })
+    }
+  }
+
+  showMessage(translate, message, type) {
+    var o = document.createElement('h3');
+    var m = document.createElement('h3');
+    m.className = 'receive-message';
+
+    o.innerHTML = message;
+    m.innerHTML =translate;
+
+    if(type == 'sender'){
+      this.senderMessage.appendChild(o);this.receiverMessage.appendChild(m);
+    }else {
+      this.senderMessage.appendChild(m);this.receiverMessage.appendChild(o);
+    }
+
+  }
+
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (chat);
 
 /***/ }),
 
@@ -7110,7 +7219,6 @@ class translater {
   }
 
   init() {
-    console.log(this.el)
     this.event();
 
   }
@@ -7176,6 +7284,8 @@ class translater {
           console.log(JSON.stringify(event.Result)); // check console for other information in result
           break;
         case "SpeechHypothesisEvent":
+        var text = event.Result.Text
+
           _this.showText(event.Result.Text, false);
 
           console.log(JSON.stringify(event.Result)); // check console for other information in result
@@ -7192,7 +7302,15 @@ class translater {
 
           break;
         case "SpeechDetailedPhraseEvent":
-          console.log('SpeechDetailedPhraseEvent', JSON.stringify(event.Result));
+          var text = event.Result.DisplayText;
+          var textArray = text.split(' ');
+          for(let word in textArray){
+            console.log(textArray[word]);
+            if(textArray[word] == 'doctor' || textArray[word] == 'doctor.'){
+              window.location = '/Home/health'
+              return;
+            }
+          }
           _this.sendText(JSON.stringify(event.Result.DisplayText), type)
 
 
@@ -7304,21 +7422,21 @@ class translater {
     var action = document.createElement('div');
     var divinput = document.createElement('div');
     var input = document.createElement('imput');
-    var button = document.createElement('button');
+
 
     mdCard.className = "mdc-card";
     action.className = "dc-card__action-icons";
-    button.className = "mdc-button";
+
     input.className = "mdc-text-field__input"
     var h3 = document.createElement('h3')
     var span = document.createElement('span')
     input.innerHTML = text;
     span.innerText = lang;
     input.type = 'text'
-    button.innerText = 'إرسال'
+
     mdCard.appendChild(span);
     mdCard.appendChild(input);
-    mdCard . appendChild(button)
+
     return mdCard;
   }
 
