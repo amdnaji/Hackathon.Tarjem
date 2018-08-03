@@ -7071,7 +7071,13 @@ new _translater__WEBPACK_IMPORTED_MODULE_2__["default"](voice)
 const topAppBarElement = document.querySelector('.mdc-top-app-bar');
 const topAppBar = new _material_top_app_bar_index__WEBPACK_IMPORTED_MODULE_1__["MDCTopAppBar"](topAppBarElement);
 
-// const ripple = new MDCRipple(document.querySelector('.foo-button'));
+const rippleInput = document.querySelectorAll('.ripple');
+
+if(rippleInput) {
+  rippleInput.forEach((v,k) => {
+    new _material_ripple__WEBPACK_IMPORTED_MODULE_0__["MDCRipple"](k)
+  })
+}
 
 
 
@@ -7296,16 +7302,23 @@ class translater {
   appendMessages(text, lang) {
     var mdCard = document.createElement('div');
     var action = document.createElement('div');
+    var divinput = document.createElement('div');
+    var input = document.createElement('imput');
+    var button = document.createElement('button');
 
     mdCard.className = "mdc-card";
     action.className = "dc-card__action-icons";
-
+    button.className = "mdc-button";
+    input.className = "mdc-text-field__input"
     var h3 = document.createElement('h3')
     var span = document.createElement('span')
-    h3.innerHTML = text;
+    input.innerHTML = text;
     span.innerText = lang;
-    mdCard.appendChild(span)
-    mdCard.appendChild(h3);
+    input.type = 'text'
+    button.innerText = 'إرسال'
+    mdCard.appendChild(span);
+    mdCard.appendChild(input);
+    mdCard . appendChild(button)
     return mdCard;
   }
 
