@@ -38,7 +38,6 @@ namespace Hackathon.Tarjem
             {
                 app.UseExceptionHandler("/Home/Error");
             }
-
             app.UseStaticFiles();
             //Enable Signalr
             app.UseSignalR(routes =>

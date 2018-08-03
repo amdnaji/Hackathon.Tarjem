@@ -25,10 +25,10 @@ namespace Hackathon.Tarjem.Controllers
             //Detect languge first()
 
             //Check parsed keywords if contain doctor keyword or not
-            //if(userText.text.Contains("doctors")|| userText.text.Contains("doctor"))
-            //{
-            //    return RedirectToAction("Health", "Translate");
-            //}
+            if (userText.text.Contains("doctors") || userText.text.Contains("doctor"))
+            {
+                return RedirectToAction("Health", "Translate");
+            }
             var textBody = await CheckLangSourceAsync(lang, userText.text);
             if (textBody != null) //Mean the text is arabic and we need to translate it
                 return Json(textBody);
@@ -54,6 +54,32 @@ namespace Hackathon.Tarjem.Controllers
                 t.To = languages.GetLanguageName(t.To);
             });
             return Json(langList.First().Translations);
+        }
+
+        //Instead of Ask/answer methods we should use SignalR for Real Realtime :).But we are restricted to the hackthone time.
+        [HttpPost]
+        public async Task<IActionResult> Ask([FromBody]UserText userText)
+        {
+
+            var jsonResult = await _trnaslator.TranslateAsync(userText.text);
+            var (lang, toText) = ParsedText(jsonResult);            
+            //set  the trnaslation result
+            return Json(new
+            {
+                text = toText
+            });
+        }
+        [HttpPost]
+        public async Task<IActionResult> Answer([FromBody]UserText userText)
+        {
+
+            var jsonResult = await _trnaslator.TranslateAsync(userText.text,"en");
+            var (lang, toText) = ParsedText(jsonResult);
+            //set  the trnaslation result
+            return Json(new
+            {
+                text = toText
+            });
         }
         #endregion
 
